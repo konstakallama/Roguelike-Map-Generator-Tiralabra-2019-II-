@@ -4,4 +4,4 @@
 
 Viikkoraportit:
 
-	-[Viikkoraportti 1](https://github.com/konstakallama/Roguelike-Map-Generator-Tiralabra-2019-II-/blob/master/Dokumentaatio/Viikkoraportti%201.md)
+[Viikkoraportti 1](https://github.com/konstakallama/Roguelike-Map-Generator-Tiralabra-2019-II-/blob/master/Dokumentaatio/Viikkoraportti%201.md)
