@@ -16,4 +16,6 @@ int h = kartan korkeus
 
 Koko algoritmin aikavaativuus on siis parametreista riippuen O(roomN * w * h) tai O(roomN^2 * (w+h)). Näistä useimmiten merkittävämpi on ensimmäinen, sillä tyypillisesti roomN < 10 ja w, h >= 50. Aikavaativuuksien tutkimisen hyödyllisyys on muutenkin ehkä hieman kyseenalaista, koska käyttötilnateissa kaikkien parametrien arvot tulevat joka tapauksessa olemaan pienehköjä; tärkeintä on, että todellinen käytetty aika on pieni (absoluuttinen yläraja tälle olisi 1s, tavoite <500ms).
 
+Tällä hetkellä ainoa valmis tietorakenne, joka tuolta pitäisi omalla toteutuksella korvata on pino (ja senkin voisi periaatteessa tehdä laiskasti taulukolla kun yläraja lisättävien elementtien määrälle on tiedossa). Nimesin laiskan kokorajoitetun listani DynamicArray:ksi, jos joku sille tietää sopivamman nimen niin otan mielelläni vastaan.
+
 Suurin ongelma tässä algoritmissä tällä hetkellä on, että se joskus luo käytäviä, jotka sivuavat huonetta (ja jotka siis loogisesti olisivat osa tuota huonetta) ja vierekkäisiä tuplakäytäviä. Saatan myöhemmin kurssilla parannella tätä näiltä osin, mutta seuraavana halunnen implementoida jonkun toisen algoritmin.
