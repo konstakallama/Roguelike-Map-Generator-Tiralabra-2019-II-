@@ -10,7 +10,7 @@ http://www.roguebasin.com/index.php?title=Dungeon-Building_Algorithm mukainen
 
 https://www.rockpapershotgun.com/2015/07/28/how-do-roguelikes-generate-levels/ mukainen, joskin todnäk yhksinkertaistettu, sillä OTM-pelissä ei ole kaikkia näitä hienouksia toteutettu
 
-	
+
 Ohjelma saa syötteenä jotain parametreja ja tuottaa niitä noudattelevan satunnaisen kartan. OTM-projektissa ollutta käyttöliittymää voi pienein muutoksin helposti käyttää karttojen demoamiseen.
 Perusalgoritmin toimiessa näihin voi lisätä esim eri muotoisten huoneiden preferointia, itemien paikoitusta etc.
 Arviointiperusteina:
@@ -23,5 +23,5 @@ Lisäfeatureille määritellään omat onnistumiperusteet
 
 Suoritusaika pysyy halutussa kokoluokassa
 
-	
+
 Kielenä Java.
