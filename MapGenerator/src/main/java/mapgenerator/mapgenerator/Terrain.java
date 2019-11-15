@@ -12,10 +12,4 @@ package mapgenerator.mapgenerator;
 public enum Terrain {
     FLOOR, WALL, STAIRS, CORRIDOR;
     
-    public boolean isOccupied() {
-        if (this == WALL) {
-            return true;
-        }
-        return false;
-    }
 }

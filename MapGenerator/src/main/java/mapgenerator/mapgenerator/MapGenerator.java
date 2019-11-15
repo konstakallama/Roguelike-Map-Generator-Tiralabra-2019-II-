@@ -13,37 +13,53 @@ import java.util.Stack;
  * @author konstakallama
  */
 public class MapGenerator {
+
     Random r = new Random();
     DynamicArray d;
-    
-    public Terrain[][] createMap(int w, int h, int roomN, int corridorN) {
+
+    /**
+     * Create a Map with the old otm-algorithm.
+     *
+     * @param w Map width
+     * @param h Map Height
+     * @param roomN Maximum number of rooms. The algorithm will try to create
+     * this many rooms but drops the number if it can't find space.
+     * @param corridorN Number of random-destination corridors from each room.
+     * @return The created Map.
+     */
+    public Map createMap(int w, int h, int roomN, int corridorN) {
         d = new DynamicArray(roomN);
         Terrain[][] t = initT(w, h);
         Room[] rooms = new Room[roomN];
         boolean[] connected = new boolean[roomN];
-        
+
         connected[0] = true;
-        
+
         for (int i = 0; i < roomN; i++) {
-            Room room = this.createRoomIterator(t); //O(roomN * 100 * (w/5 * h/5)) ~ O(roomN * w * h)
+            Room room = this.createRoom(t); //O(roomN * 100 * (w/5 * h/5)) ~ O(roomN * w * h)
             if (room != null) {
                 rooms[i] = room;
             } else {
                 connected[i] = true;
             }
         }
-        
+
         boolean[][] corridors = addCorridors(roomN, corridorN, rooms); //O(roomN*corridorN)
-        
+
         connected = dfs(corridors, connected); //O(roomN + min(roomN*corridorN, roomN^2))
-        
+
         corridors = connectRooms(roomN, connected, corridors); //O(roomN)
-        
+
         t = paintCorridors(t, rooms, corridors); //O(roomN^2 * (w+h))
-        
-        return t;
+
+        Map m = new Map(t, rooms, w, h);
+
+        return m;
     }
-    
+
+    /**
+     * Paint the corridors in the corridors array into t.
+     */
     private Terrain[][] paintCorridors(Terrain[][] t, Room[] rooms, boolean[][] corridors) {
         for (int i = 0; i < corridors.length; i++) {
             for (int j = 0; j < corridors.length; j++) {
@@ -56,7 +72,10 @@ public class MapGenerator {
         }
         return t;
     }
-    
+
+    /**
+     * Add corridors from every unconnected room to a random connected room.
+     */
     private boolean[][] connectRooms(int roomN, boolean[] connected, boolean[][] corridors) {
         for (int i = 0; i < roomN; i++) {
             if (!connected[i]) {
@@ -69,7 +88,10 @@ public class MapGenerator {
         }
         return corridors;
     }
-    
+
+    /**
+     * Add corridorN corridors from each room to some random other room.
+     */
     private boolean[][] addCorridors(int roomN, int corridorN, Room[] rooms) {
         boolean[][] corridors = new boolean[roomN][roomN];
         for (int i = 0; i < roomN; i++) {
@@ -85,12 +107,15 @@ public class MapGenerator {
         }
         return corridors;
     }
-    
+
+    /**
+     * Find which rooms are connected to the first room via dfs.
+     */
     private boolean[] dfs(boolean[][] corridors, boolean[] connected) {
         Stack<Integer> s = new Stack<>();
         s.push(0);
-        
-        while(!s.empty()) {
+
+        while (!s.empty()) {
             int k = s.pop();
             connected[k] = true;
             d.add(k);
@@ -102,7 +127,10 @@ public class MapGenerator {
         }
         return connected;
     }
-    
+
+    /**
+     * Initialize t to contain only wall.
+     */
     private Terrain[][] initT(int w, int h) {
         Terrain[][] t = new Terrain[w][h];
         for (int i = 0; i < w; i++) {
@@ -112,19 +140,11 @@ public class MapGenerator {
         }
         return t;
     }
-    
-    private Room createRoomIterator(Terrain[][] t) {
-        int i = 0;
-        while (i < 1) {
-            Room r = this.createRoom(t);
-            if (r != null) {
-                return r;
-            }
-            i++;
-        }
-        return null;
-    }
-    
+
+    /**
+     * Paint a room of random rectangular size to a random location. Returns
+     * null if it can't find a valid location.
+     */
     private Room createRoom(Terrain[][] t) {
         int w = 3 + r.nextInt(t.length / 5);
         int h = 3 + r.nextInt(t[0].length / 5);
@@ -137,7 +157,11 @@ public class MapGenerator {
 
         return null;
     }
-    
+
+    /**
+     * Create random room locations until finding a valid one or failing a set
+     * amount of times.
+     */
     private Location findRoomLocation(Terrain[][] t, int w, int h) {
         int k = 0;
         int x = 0;
@@ -154,6 +178,9 @@ public class MapGenerator {
         return new Location(x, y);
     }
 
+    /**
+     * Check if given room fits into given location.
+     */
     private boolean isValidRoomLocation(Terrain[][] t, int x, int y, int w, int h) {
         for (int i = Math.max(0, x - 2); i < Math.min(t.length, x + w + 2); i++) {
             for (int j = Math.max(0, y - 2); j < Math.min(t[0].length, y + h + 2); j++) {
@@ -165,6 +192,9 @@ public class MapGenerator {
         return true;
     }
 
+    /**
+     * Paint rectangular room (w, h) to l.
+     */
     private void paintRoom(Terrain[][] t, Location l, int w, int h) {
         for (int i = l.getX(); i < l.getX() + w; i++) {
             for (int j = l.getY(); j < l.getY() + h; j++) {
@@ -172,7 +202,10 @@ public class MapGenerator {
             }
         }
     }
-    
+
+    /**
+     *
+     */
     private Terrain[][] paintCorridor(Terrain[][] t, Room from, Room to) {
         Direction d = getClosestDirForRooms(from, to);
 
@@ -181,7 +214,7 @@ public class MapGenerator {
         this.paintToDir(d, start, to, t);
         return t;
     }
-    
+
     private Location getCorridorStart(Room from, Direction d, Terrain[][] t) {
         Location l = from.getMiddle();
         while (t[l.getX()][l.getY()] == Terrain.FLOOR) {
@@ -217,7 +250,7 @@ public class MapGenerator {
             }
         }
     }
-    
+
     private void paintToDir(Direction d, Location l, Room to, Terrain[][] t) {
         if (to.isNextTo(l)) {
             if (t[l.getX()][l.getY()] == Terrain.WALL) {
@@ -238,7 +271,7 @@ public class MapGenerator {
             paintLeft(l, to, t);
         }
     }
-    
+
     private void paintDown(Location l, Room to, Terrain[][] t) {
 
         while (to.getLocation().getY() > l.getY() - 1) {
