@@ -1,15 +1,25 @@
 ## Algoritmi 2
 
 int maxW = kartan leveys
+
 int maxH = kartan korkeus
+
 int steps = kuinka monta kertaa algoritmi yrittää lisätä jotain
+
 int minRoomW = huoneen minimileveys
+
 int minRoomH = huoneen minimikorkeus
+
 int maxRoomW = huoneen maksimileveys
+
 int maxRoomH = huoneen maksimikorkeus
+
 int minCorridorLen = käytävän minimipituus
+
 int maxCorridorLen = käytävän maksimipituus
+
 double roomChance = todnäk huoneen tekoon (vs käytävän tekoon)
+
 int connectDistance = maksimipituus, jolla käytävää pidennetään, jos se yhdistäisi huoneeseen/käytävään
 
 1. Luo random kokoinen huone random lokaatioon.
