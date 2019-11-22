@@ -3,7 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mapgenerator.mapgenerator;
+package support.generic;
+
+import support.map.Direction;
+import support.map.Location;
 
 /**
  *

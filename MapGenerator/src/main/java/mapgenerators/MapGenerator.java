@@ -3,10 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mapgenerator.mapgenerator;
+package mapgenerators;
 
 import java.util.Random;
 import java.util.Stack;
+import support.generic.DynamicArray;
+import support.map.Direction;
+import support.map.Location;
+import support.map.Map;
+import support.map.Room;
+import support.map.Terrain;
 
 /**
  *

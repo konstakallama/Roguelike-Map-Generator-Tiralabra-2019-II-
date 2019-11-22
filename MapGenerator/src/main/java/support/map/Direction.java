@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mapgenerator.mapgenerator;
+package support.map;
 
 /**
  *
@@ -92,6 +92,21 @@ public enum Direction {
             return Direction.DOWN;
         } else {
             return Direction.NONE;
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (this == Direction.UP) {
+            return "Up";
+        } else if (this == Direction.DOWN) {
+            return "Down";
+        } else if (this == Direction.RIGHT) {
+            return "Right";
+        } else if (this == Direction.LEFT) {
+            return "Left";
+        } else {
+            return "None";
         }
     }
     

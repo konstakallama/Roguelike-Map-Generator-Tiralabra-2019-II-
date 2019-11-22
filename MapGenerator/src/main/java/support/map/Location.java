@@ -3,9 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mapgenerator.mapgenerator;
-
-import java.util.ArrayList;
+package support.map;
 
 /**
  *
@@ -65,6 +63,16 @@ public class Location {
         this.y += d.yVal();
     }
     /**
+     * Moves this location amount tiles into direction d.
+     * @param d 
+     * @param amount 
+     */
+    public void move(Direction d, int amount) {
+        for (int i = 0; i < amount; i++) {
+            this.move(d);
+        }
+    }
+    /**
      * Returns the location 1 tile in direction d.
      * @param d
      * @return the location 1 tile in direction d.
@@ -98,13 +106,13 @@ public class Location {
      * Returns a list of the 4 locations adjacent to this one.
      * @return a list of the 4 locations adjacent to this one.
      */
-    public ArrayList<Location> getAdjacent() {
-        ArrayList<Location> a = new ArrayList<>();
+    public Location[] getAdjacent() {
+        Location[] a = new Location[4];
         
         Direction d = Direction.DOWN;
         
         for (int i = 0; i < 4; i++) {
-            a.add(this.locInDir(d));
+            a[i] =  this.locInDir(d);
             d = d.getClockwiseTurn();
         }
         

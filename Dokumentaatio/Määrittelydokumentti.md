@@ -6,7 +6,9 @@ Tarkoitus generoida koko kerroksen kartta valmiiksi kerralla. Aikaa ei saisi kul
 
 [OTM-kurssilla toteutetun alkeellsien algoritmin laajennus](https://github.com/konstakallama/Roguelike-Map-Generator-Tiralabra-2019-II-/blob/master/Dokumentaatio/algoritmi%201.md)
 
-http://www.roguebasin.com/index.php?title=Dungeon-Building_Algorithm mukainen
+
+http://www.roguebasin.com/index.php?title=Dungeon-Building_Algorithm mukainen, [Tarkempi selostus syötteistä ym]()
+
 
 https://www.rockpapershotgun.com/2015/07/28/how-do-roguelikes-generate-levels/ mukainen, joskin todnäk yhksinkertaistettu, sillä OTM-pelissä ei ole kaikkia näitä hienouksia toteutettu
 
