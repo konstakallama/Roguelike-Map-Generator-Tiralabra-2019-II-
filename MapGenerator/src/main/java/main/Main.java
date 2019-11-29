@@ -7,8 +7,9 @@ package main;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import mapgenerators.MapGenerator;
+import mapgenerators.MapGenerator1;
 import mapgenerators.MapGenerator2;
+import mapgenerators.MapGenerator3;
 import org.apache.commons.lang.time.StopWatch;
 import support.generic.MapGenerator2Parameters;
 import support.map.Map;
@@ -21,15 +22,18 @@ import support.map.Terrain;
 public class Main {
 
     public static void main(String[] args) {
-        MapGenerator m = new MapGenerator();
+        MapGenerator1 m1 = new MapGenerator1();
         MapGenerator2 m2 = new MapGenerator2();
+        MapGenerator3 m3 = new MapGenerator3();
+        
         StopWatch sw = new StopWatch();
         //maxW, maxH, steps, minRoomW, minRoomH, maxRoomW, maxRoomH, minCorridorLen, maxCorridorLen, roomChance, connectDistance
-        MapGenerator2Parameters par = new MapGenerator2Parameters(50, 50, 5000, 3, 3, 10, 10, 4, 10, 0.9, 1);
+        MapGenerator2Parameters par = new MapGenerator2Parameters(50, 50, 500, 3, 3, 10, 10, 4, 10, 0.9, 1);
 
         sw.start();
-        //Map c = m.createMap(50, 50, 5, 1);
-        Map c = m2.createMap(par);
+        //Map c = m1.createMap(50, 50, 5, 1);
+        //Map c = m2.createMap(par);
+        Map c = m3.GenerateMap(50, 50, 0.65, 0.15, 4, 2);
         sw.stop();
 
         long time = sw.getTime();

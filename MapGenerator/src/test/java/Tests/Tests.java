@@ -10,8 +10,9 @@ import java.util.Random;
 import support.map.Direction;
 import support.map.Location;
 import support.map.Map;
-import mapgenerators.MapGenerator;
+import mapgenerators.MapGenerator1;
 import mapgenerators.MapGenerator2;
+import mapgenerators.MapGenerator3;
 import support.map.Terrain;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -26,8 +27,9 @@ import org.apache.commons.lang.time.StopWatch;
 public class Tests {
 
     private Random r = new Random();
-    private MapGenerator mg = new MapGenerator();
+    private MapGenerator1 mg = new MapGenerator1();
     private MapGenerator2 mg2 = new MapGenerator2();
+    MapGenerator3 m3 = new MapGenerator3();
     private StopWatch sw = new StopWatch();
     private long maxTime = 500;
 
@@ -59,7 +61,6 @@ public class Tests {
         sw.stop();
         assertTrue(sw.getTime() < maxTime);
         this.everyTileReachable(m);
-        this.noDeadEnds(m);
     }
 
     @Test
@@ -70,7 +71,6 @@ public class Tests {
         sw.stop();
         assertTrue(sw.getTime() < maxTime);
         this.everyTileReachable(m);
-        this.noDeadEnds(m);
     }
 
     @Test
@@ -81,7 +81,6 @@ public class Tests {
         sw.stop();
         assertTrue(sw.getTime() < maxTime);
         this.everyTileReachable(m);
-        this.noDeadEnds(m);
     }
 
     @Test
@@ -98,6 +97,7 @@ public class Tests {
     @Test
     public void randomParametersMg2() {
         for (int i = 0; i < 100; i++) {
+            r.setSeed(0);
             //maxW, maxH, steps, minRoomW, minRoomH, maxRoomW, maxRoomH, minCorridorLen, maxCorridorLen, roomChance, connectDistance
             int maxW = r.nextInt(100) + 20;
             int maxH = r.nextInt(100) + 20;
@@ -119,6 +119,18 @@ public class Tests {
             assertTrue(sw.getTime() < maxTime);
             this.everyTileReachable(m);
             this.noDeadEnds(m);
+        }
+    }
+
+    @Test
+    public void mg3Test() {
+        for (int i = 0; i < 10; i++) {
+            sw.reset();
+            sw.start();
+            Map m = m3.GenerateMap(50, 50, 0.7, 0.15, 4, 2);
+            sw.stop();
+            assertTrue(sw.getTime() < maxTime);
+            this.everyTileReachable(m);
         }
     }
 
