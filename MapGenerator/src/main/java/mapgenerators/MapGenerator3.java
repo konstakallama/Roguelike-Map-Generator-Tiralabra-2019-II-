@@ -7,6 +7,7 @@ package mapgenerators;
 
 import java.util.ArrayDeque;
 import java.util.Random;
+import support.generic.LocationQueue;
 import support.map.Location;
 import support.map.Map;
 import support.map.Room;
@@ -22,11 +23,18 @@ public class MapGenerator3 {
 
     Random r = new Random();
     Location r0loc;
+    Map m;
 
-    public Map GenerateMap(int w, int h, double floorChance, double floorRatio, int wallAddIts, int noWallAddIts) {
+    public Map createMap(int w, int h, double floorChance, double floorRatio, int wallAddIts, int noWallAddIts, boolean manhattan, long randomSeed) {
+        r.setSeed(randomSeed);
+        return this.createMap(w, h, floorChance, floorRatio, wallAddIts, noWallAddIts, manhattan);
+    }
+
+    public Map createMap(int w, int h, double floorChance, double floorRatio, int wallAddIts, int noWallAddIts, boolean manhattan) {
         Terrain[][] t;
+        m = new Map(w, h);
         while (true) {
-            t = this.generateTerrain(w, h, floorChance, wallAddIts, noWallAddIts);
+            t = this.generateTerrain(w, h, floorChance, wallAddIts, noWallAddIts, manhattan);
 //            this.printMap(t);
 //            System.out.println("");
             if (overXPercentFloor(t, floorRatio)) {
@@ -36,28 +44,43 @@ public class MapGenerator3 {
         Room[] rooms = new Room[1];
         Room r0 = new Room(this.r0loc, 1, 1);
         rooms[0] = r0;
-        return new Map(t, rooms, w, h);
+        m.setRooms(rooms);
+        return m;
     }
 
-    private Terrain[][] generateTerrain(int w, int h, double floorChance, int wallAddIts, int noWallAddIts) {
+    private Terrain[][] generateTerrain(int w, int h, double floorChance, int wallAddIts, int noWallAddIts, boolean manhattan) {
         Terrain[][] t = this.initT(w, h);
         t = randomFill(floorChance, t);
+        m.setT(t);
+        m.recordHistory();
 //        this.printMap(t);
 //        System.out.println("");
 
         for (int i = 0; i < wallAddIts; i++) {
-            t = iteration(t, true);
+            if (manhattan) {
+                t = manhattanIteration(t, true);
+            } else {
+                t = iteration(t, true);
+            }
+            
+            m.recordHistory();
 //            this.printMap(t);
 //            System.out.println("");
         }
 
         for (int i = 0; i < noWallAddIts; i++) {
-            t = iteration(t, false);
+            if (manhattan) {
+                t = manhattanIteration(t, false);
+            } else {
+                t = iteration(t, false);
+            }
+            m.recordHistory();
 //            this.printMap(t);
 //            System.out.println("");
         }
 
         t = fillUnreachable(t);
+        m.recordHistory();
 
         return t;
     }
@@ -101,6 +124,41 @@ public class MapGenerator3 {
             }
         }
         return t;
+    }
+    
+    private Terrain[][] manhattanIteration(Terrain[][] t, boolean wallAddition) {
+        for (int i = 1; i < t.length - 1; i++) {
+            for (int j = 1; j < t[0].length - 1; j++) {
+                int wc1 = this.manhattanWallCount(i, j, 1, t);
+                int wc2 = this.manhattanWallCount(i, j, 2, t);
+                if (wc1 >= 3) {
+                    t[i][j] = Terrain.WALL;
+                } else if (wallAddition && wc2 <= 1) {
+                    t[i][j] = Terrain.WALL;
+                } else if (wc1 <= 1) {
+                    t[i][j] = Terrain.FLOOR;
+                } else if (!wallAddition && wc2 <= 2) {
+                    t[i][j] = Terrain.FLOOR;
+                }
+            }
+        }
+        return t;
+    }
+
+    private int manhattanWallCount(int x, int y, int radius, Terrain[][] t) {
+        int count = 0;
+        for (int i = x - radius; i <= x + radius; i++) {
+            for (int j = y - radius; j <= y + radius; j++) {
+                if (Math.abs(x - i) + Math.abs(y - j) <= radius) {
+                    if (!this.outOfBounds(i, j, t.length, t[0].length)) {
+                        if (t[i][j] == Terrain.WALL) {
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     private int wallCount(int x, int y, int xScope, int yScope, Terrain[][] t) {
@@ -157,10 +215,10 @@ public class MapGenerator3 {
 
     private boolean[][] bfs(Terrain[][] t, Location l) {
         boolean[][] reachable = new boolean[t.length][t[0].length];
-        ArrayDeque<Location> q = new ArrayDeque<>();
-        q.add(l);
-        while (!q.isEmpty()) {
-            l = q.poll();
+        LocationQueue q = new LocationQueue();
+        q.enqueue(l);
+        while (!q.empty()) {
+            l = q.dequeue();
             if (reachable[l.getX()][l.getY()]) {
                 continue;
             }
@@ -168,7 +226,7 @@ public class MapGenerator3 {
             for (Location a : l.getAdjacent()) {
                 if (!outOfBounds(a.getX(), a.getY(), t.length, t[0].length)) {
                     if (!reachable[a.getX()][a.getY()] && t[a.getX()][a.getY()] != Terrain.WALL) {
-                        q.add(a);
+                        q.enqueue(a);
                     }
                 }
             }

@@ -1,5 +1,3 @@
-
-  
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -8,8 +6,9 @@
 package mapgenerators;
 
 import java.util.Random;
-import java.util.Stack;
+import support.generic.DirectionPair;
 import support.generic.DynamicArray;
+import support.generic.IntegerStack;
 import support.map.Direction;
 import support.map.Location;
 import support.map.Map;
@@ -24,6 +23,7 @@ public class MapGenerator1 {
 
     Random r = new Random();
     DynamicArray d;
+    Map m;
 
     /**
      * Create a Map with the old otm-algorithm.
@@ -42,9 +42,13 @@ public class MapGenerator1 {
         boolean[] connected = new boolean[roomN];
 
         connected[0] = true;
+        
+        m = new Map(w, h);
+        m.setT(t);
 
         for (int i = 0; i < roomN; i++) {
             Room room = this.createRoom(t); //O(roomN * 100 * (w/5 * h/5)) ~ O(roomN * w * h)
+            m.recordHistory();
             if (room != null) {
                 rooms[i] = room;
             } else {
@@ -60,9 +64,18 @@ public class MapGenerator1 {
 
         t = paintCorridors(t, rooms, corridors); //O(roomN^2 * (w+h))
 
-        Map m = new Map(t, rooms, w, h);
+        //Map m = new Map(t, rooms, w, h);
+        m.setRooms(rooms);
 
         return m;
+    }
+    
+    /**
+     * Create Map with a given random seed. Otherwise identical to the other createMap.
+     */
+    public Map createMap(int w, int h, int roomN, int corridorN, long randomSeed) {
+        r.setSeed(randomSeed);
+        return this.createMap(w, h, roomN, corridorN);
     }
 
     /**
@@ -74,6 +87,7 @@ public class MapGenerator1 {
                 if (i > j) {
                     if (rooms[i] != null && rooms[j] != null) {
                         t = paintCorridor(t, rooms[i], rooms[j]);
+                        m.recordHistory();
                     }
                 }
             }
@@ -120,7 +134,7 @@ public class MapGenerator1 {
      * Find which rooms are connected to the first room via dfs.
      */
     private boolean[] dfs(boolean[][] corridors, boolean[] connected) {
-        Stack<Integer> s = new Stack<>();
+        IntegerStack s = new IntegerStack();
         s.push(0);
 
         while (!s.empty()) {
@@ -215,12 +229,47 @@ public class MapGenerator1 {
      *
      */
     private Terrain[][] paintCorridor(Terrain[][] t, Room from, Room to) {
-        Direction d = getClosestDirForRooms(from, to);
-
-        Location start = getCorridorStart(from, d, t);
-
-        this.paintToDir(d, start, to, t);
+        DirectionPair dp = getDirectionsForRooms(from, to);
+        Location start = getCorridorStart(from, dp.getD1(), t);   
+        Location turn = paintToDirection(dp.getD1(), start, to, t);
+        paintToDirection(dp.getD2(), turn, to, t);
         return t;
+    }
+    
+    private Direction getHorizontalForRooms(Room from, Room to) {
+        if (from.getMiddle().getX() < to.getMiddle().getX()) {
+            return Direction.RIGHT;
+        } else if (from.getMiddle().getX() > to.getMiddle().getX()) {
+            return Direction.LEFT;
+        } else {
+            return Direction.NONE;
+        }
+    }
+    
+    private Direction getVerticalForRooms(Room from, Room to) {
+        if (from.getMiddle().getY() < to.getMiddle().getY()) {
+            return Direction.DOWN;
+        } else if (from.getMiddle().getY() > to.getMiddle().getY()) {
+            return Direction.UP;
+        } else {
+            return Direction.NONE;
+        }
+    }
+
+    private DirectionPair getDirectionsForRooms(Room from, Room to) {
+        Direction d1 = this.getHorizontalForRooms(from, to);
+        Direction d2 = this.getVerticalForRooms(from, to);
+        if (d1 == Direction.NONE) {
+            return new DirectionPair(d2, d1);
+        } else if (d2 == Direction.NONE) {
+            return new DirectionPair(d1, d2);
+        } else {
+            if (Math.abs(from.getMiddle().getX() - to.getMiddle().getX()) > Math.abs(from.getMiddle().getY() - to.getMiddle().getY())) {
+                return new DirectionPair(d1, d2);
+            } else {
+                return new DirectionPair(d2, d1);
+            }
+        }
     }
 
     private Location getCorridorStart(Room from, Direction d, Terrain[][] t) {
@@ -231,112 +280,73 @@ public class MapGenerator1 {
         return l;
     }
 
-    private Direction getClosestDirForRooms(Room from, Room to) {
-        int fromX = from.getMiddle().getX();
-        int fromY = from.getMiddle().getY();
-
-        int toX = to.getMiddle().getX();
-        int toY = to.getMiddle().getY();
-
-        return this.getClosestDir(fromX, toX, fromY, toY);
-    }
-
-    private Direction getClosestDir(int fromX, int toX, int fromY, int toY) {
-        if (Math.abs(fromX - toX) >= Math.abs(fromY - toY)) {
-            if (fromX - toX < 0) {
-                return Direction.RIGHT;
-            } else {
-                return Direction.LEFT;
-            }
-        } else {
-            if (fromY - toY < 0) {
-                return Direction.DOWN;
-            } else if (fromY - toY > 0) {
-                return Direction.UP;
-            } else {
-                return Direction.NONE;
-            }
-        }
-    }
-
-    private void paintToDir(Direction d, Location l, Room to, Terrain[][] t) {
-        if (to.isNextTo(l)) {
+    private Location paintDown(Location l, Room to, Terrain[][] t) {
+        while (to.getMiddle().getY() > l.getY()) {
             if (t[l.getX()][l.getY()] == Terrain.WALL) {
                 t[l.getX()][l.getY()] = Terrain.CORRIDOR;
             }
-            return;
+            if (to.isNextTo(l)) {
+                break;
+            }
+            l.move(Direction.DOWN);
         }
-        if (d == Direction.NONE) {
-            return;
+        return l;
+    }
+
+    private Location paintUp(Location l, Room to, Terrain[][] t) {
+        while (to.getMiddle().getY() < l.getY()) {
+            if (t[l.getX()][l.getY()] == Terrain.WALL) {
+                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
+            }
+            if (to.isNextTo(l)) {
+                break;
+            }
+            l.move(Direction.UP);
+        }
+        return l;
+    }
+
+    private Location paintRight(Location l, Room to, Terrain[][] t) {
+        while (to.getMiddle().getX() > l.getX()) {
+            if (t[l.getX()][l.getY()] == Terrain.WALL) {
+                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
+            }
+            if (to.isNextTo(l)) {
+                break;
+            }
+            l.move(Direction.RIGHT);
+        }
+        return l;
+    }
+
+    private Location paintLeft(Location l, Room to, Terrain[][] t) {
+        while (to.getMiddle().getX() < l.getX()) {
+            if (t[l.getX()][l.getY()] == Terrain.WALL) {
+                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
+            }
+            if (to.isNextTo(l)) {
+                break;
+            }
+            l.move(Direction.LEFT);
+        }
+        return l;
+    }
+
+    private Location paintToDirection(Direction d, Location l, Room to, Terrain[][] t) {
+        if (to.isNextTo(l) || d == Direction.NONE) {
+            if (t[l.getX()][l.getY()] == Terrain.WALL) {
+                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
+            }
+            return l;
         }
         if (d == Direction.DOWN) {
-            paintDown(l, to, t);
+            return paintDown(l, to, t);
         } else if (d == Direction.UP) {
-            paintUp(l, to, t);
+            return paintUp(l, to, t);
         } else if (d == Direction.RIGHT) {
-            paintRight(l, to, t);
+            return paintRight(l, to, t);
         } else {
-            paintLeft(l, to, t);
+            return paintLeft(l, to, t);
         }
-    }
-
-    private void paintDown(Location l, Room to, Terrain[][] t) {
-
-        while (to.getLocation().getY() > l.getY() - 1) {
-
-            if (t[l.getX()][l.getY()] == Terrain.WALL) {
-                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
-            }
-            l.move(Direction.DOWN);
-        }
-        if (to.isInside(l)) {
-            l.move(Direction.UP);
-            return;
-        }
-        this.paintToDir(this.getClosestDir(l.getX(), to.getLocation().getX(), l.getY(), to.getLocation().getY()), l, to, t);
-
-    }
-
-    private void paintUp(Location l, Room to, Terrain[][] t) {
-        while (to.getLocation().getY() + to.getH() <= l.getY() + 1) {
-            if (t[l.getX()][l.getY()] == Terrain.WALL) {
-                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
-            }
-            l.move(Direction.UP);
-        }
-        if (to.isInside(l)) {
-            l.move(Direction.DOWN);
-            return;
-        }
-        this.paintToDir(this.getClosestDir(l.getX(), to.getLocation().getX(), l.getY(), to.getLocation().getY() + to.getH() - 1), l, to, t);
-
-    }
-
-    private void paintRight(Location l, Room to, Terrain[][] t) {
-        while (to.getLocation().getX() > l.getX() - 1) {
-            if (t[l.getX()][l.getY()] == Terrain.WALL) {
-                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
-            }
-            l.move(Direction.RIGHT);
-        }
-        if (to.isInside(l)) {
-            l.move(Direction.LEFT);
-            return;
-        }
-        this.paintToDir(this.getClosestDir(l.getX(), to.getLocation().getX(), l.getY(), to.getLocation().getY()), l, to, t);
-    }
-
-    private void paintLeft(Location l, Room to, Terrain[][] t) {
-        while (to.getLocation().getX() + to.getW() <= l.getX() + 1) {
-            if (t[l.getX()][l.getY()] == Terrain.WALL) {
-                t[l.getX()][l.getY()] = Terrain.CORRIDOR;
-            }
-            l.move(Direction.LEFT);
-        }
-        if (to.isInside(l)) {
-            l.move(Direction.RIGHT);
-            return;
-        }
-        this.paintToDir(this.getClosestDir(l.getX(), to.getLocation().getX() + to.getW() - 1, l.getY(), to.getLocation().getY()), l, to, t);
     }
 }

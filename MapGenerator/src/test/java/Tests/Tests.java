@@ -57,37 +57,58 @@ public class Tests {
     public void defaultParametersMg1() {
         sw.reset();
         sw.start();
-        Map m = mg.createMap(50, 50, 5, 1);
+        Map m = mg.createMap(50, 50, 5, 1, 0);
         sw.stop();
         assertTrue(sw.getTime() < maxTime);
         this.everyTileReachable(m);
+        this.noDeadEnds(m);
     }
 
     @Test
     public void largeRoomNMg1() {
         sw.reset();
         sw.start();
-        Map m = mg.createMap(50, 50, 25, 1);
+        Map m = mg.createMap(50, 50, 25, 1, 0);
         sw.stop();
         assertTrue(sw.getTime() < maxTime);
         this.everyTileReachable(m);
+        this.noDeadEnds(m);
     }
 
     @Test
     public void noRandomCorridorsMg1() {
         sw.reset();
         sw.start();
-        Map m = mg.createMap(50, 50, 5, 0);
+        Map m = mg.createMap(50, 50, 5, 0, 0);
         sw.stop();
         assertTrue(sw.getTime() < maxTime);
         this.everyTileReachable(m);
+        this.noDeadEnds(m);
+    }
+    
+    @Test
+    public void randomParametersMg1() {
+        r.setSeed(0);
+        for (int i = 0; i < 100; i++) {
+            int w = r.nextInt(100) + 20;
+            int h = r.nextInt(100) + 20;
+            int roomN = r.nextInt(10) + 2;
+            int cn = r.nextInt(3);
+            sw.reset();
+            sw.start();
+            Map m = mg.createMap(w, h, roomN, cn, i);
+            sw.stop();
+            assertTrue(sw.getTime() < maxTime);
+            this.everyTileReachable(m);
+            this.noDeadEnds(m);
+        }
     }
 
     @Test
     public void defaultParametersMg2() {
         sw.reset();
         sw.start();
-        Map m = mg2.createMap(50, 50);
+        Map m = mg2.createMap(50, 50, 0);
         sw.stop();
         assertTrue(sw.getTime() < maxTime);
         this.everyTileReachable(m);
@@ -97,7 +118,7 @@ public class Tests {
     @Test
     public void randomParametersMg2() {
         for (int i = 0; i < 100; i++) {
-            r.setSeed(0);
+            r.setSeed(i);
             //maxW, maxH, steps, minRoomW, minRoomH, maxRoomW, maxRoomH, minCorridorLen, maxCorridorLen, roomChance, connectDistance
             int maxW = r.nextInt(100) + 20;
             int maxH = r.nextInt(100) + 20;
@@ -108,7 +129,7 @@ public class Tests {
                     r.nextInt(10) + 1, r.nextInt(10) + 15, Math.min(r.nextDouble() + 0.1, 1.0), r.nextInt(10));
             sw.reset();
             sw.start();
-            Map m = mg2.createMap(par);
+            Map m = mg2.createMap(par, i);
             sw.stop();
 
             //this.printMap(m);
@@ -124,10 +145,10 @@ public class Tests {
 
     @Test
     public void mg3Test() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             sw.reset();
             sw.start();
-            Map m = m3.GenerateMap(50, 50, 0.7, 0.15, 4, 2);
+            Map m = m3.createMap(50, 50, 0.7, 0.15, 4, 2, false, i);
             sw.stop();
             assertTrue(sw.getTime() < maxTime);
             this.everyTileReachable(m);

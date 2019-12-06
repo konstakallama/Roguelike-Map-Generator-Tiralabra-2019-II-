@@ -27,9 +27,21 @@ public class MapGenerator2 {
     int maxW;
     int maxH;
     MapGenerator2Parameters par;
+    Map m;
     
     public Map createMap(int maxW, int maxH) {
         MapGenerator2Parameters par = new MapGenerator2Parameters(maxW, maxH, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return this.createMap(par);
+    }
+    
+    public Map createMap(int maxW, int maxH, long randomSeed) {
+        r.setSeed(randomSeed);
+        MapGenerator2Parameters par = new MapGenerator2Parameters(maxW, maxH, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return this.createMap(par);
+    }
+    
+    public Map createMap(MapGenerator2Parameters par, long randomSeed) {
+        r.setSeed(randomSeed);
         return this.createMap(par);
     }
 
@@ -38,12 +50,16 @@ public class MapGenerator2 {
         this.maxW = par.maxW;
         this.maxH = par.maxH;
         Terrain[][] t = initT(maxW, maxH);
+        m = new Map(maxW, maxH);
+        m.setT(t);
         
         //Create first room of random size and location
         int w = par.minRoomW + r.nextInt(par.maxRoomW);
         int h = par.minRoomW + r.nextInt(par.maxRoomW);
         Room r0 = new Room(new Location(r.nextInt(maxW - par.maxRoomW) + 1, r.nextInt(maxH - par.maxRoomH + 1)), w, h);
         paintRoom(t, r0.getLocation(), r0.getW(), r0.getH());
+              
+        m.recordHistory();
         
         //Attempt to add something steps amount of times
         for (int i = 0; i < par.steps; i++) {
@@ -71,8 +87,10 @@ public class MapGenerator2 {
         //Add a room array with just the first room to the map object. This is used in testing.
         Room[] rooms = new Room[1];
         rooms[0] = r0;
+        
+        m.setRooms(rooms);
 
-        return new Map(t, rooms, maxW, maxH);
+        return m;
     }
 
     /**
@@ -136,6 +154,7 @@ public class MapGenerator2 {
         if (validRoomLocation(l, d, t, w, h)) {
             t[l.getX()][l.getY()] = Terrain.CORRIDOR;
             paintRoom(t, getRoomNw(l, d, w, h), w, h);
+            m.recordHistory();
         }
     }
 
@@ -252,6 +271,7 @@ public class MapGenerator2 {
                 len += par.connectDistance;
             }
             this.paintCorridor(oldL, d, len, t);
+            m.recordHistory();
         }
     }
 
@@ -310,7 +330,11 @@ public class MapGenerator2 {
     private void removeDeadEnds(Terrain[][] t) {
         for (int i = 0; i < this.maxW; i++) {
             for (int j = 0; j < this.maxH; j++) {
+                boolean de = deadEnd(new Location(i, j), t) != Direction.NONE;
                 this.removeDeadEndCorridor(new Location(i, j), t);
+                if (de) {
+                    m.recordHistory();
+                }
             }
         }
     }
