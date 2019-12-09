@@ -39,6 +39,8 @@ public class MapGenerator3 {
 //            System.out.println("");
             if (overXPercentFloor(t, floorRatio)) {
                 break;
+            } else {
+                floorChance += 0.01;
             }
         }
         Room[] rooms = new Room[1];
@@ -78,6 +80,9 @@ public class MapGenerator3 {
 //            this.printMap(t);
 //            System.out.println("");
         }
+        
+        t = killRoadblocks(t);
+        m.recordHistory();
 
         t = fillUnreachable(t);
         m.recordHistory();
@@ -261,6 +266,35 @@ public class MapGenerator3 {
             }
             System.out.println("");
         }
+    }
+
+    private Terrain[][] killRoadblocks(Terrain[][] t) {
+        for (int i = 1; i < t.length - 1; i++) {
+            for (int j = 1; j < t[0].length - 1; j++) {
+                int wc1 = this.manhattanWallCount(i, j, 1, t);
+                if (wc1 == 1 && t[i][j] == Terrain.WALL) {
+                    t[i][j] = Terrain.FLOOR;
+                } else if (wc1 <= 2 && t[i][j] == Terrain.WALL) {
+                    if (twoDiagonalWalls(i, j, t)) {
+                        t[i][j] = Terrain.FLOOR;
+                    }
+                }
+            }
+        }
+        return t;
+    }
+
+    private boolean twoDiagonalWalls(int i, int j, Terrain[][] t) {
+        try {
+            if (t[i - 1][j - 1] == Terrain.WALL && t[i + 1][j + 1] == Terrain.WALL) {
+                return true;
+            } else if (t[i + 1][j - 1] == Terrain.WALL && t[i - 1][j + 1] == Terrain.WALL) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 
 }

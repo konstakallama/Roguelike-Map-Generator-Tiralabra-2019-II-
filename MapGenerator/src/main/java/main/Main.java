@@ -213,10 +213,10 @@ public class Main extends Application {
 
     private VBox createB1Box() {
         VBox b1box = new VBox();
-        TextField mw1 = new TextField("Map Width");
-        TextField mh1 = new TextField("Map Height");
-        TextField rn = new TextField("Room Number");
-        TextField cn = new TextField("Corridor Number");
+        TextField mw1 = new TextField("Map Width (def. 50)");
+        TextField mh1 = new TextField("Map Height (def. 50)");
+        TextField rn = new TextField("Room Number (def. 5)");
+        TextField cn = new TextField("Corridor Number (def. 1)");
         Button b1 = new Button("Mg1");
         b1.setOnMouseClicked((event) -> {
             mg1ClickedEvent(mw1, mh1, rn, cn);
@@ -229,17 +229,17 @@ public class Main extends Application {
     private VBox createB2Box() {
         //maxW, maxH, steps, minRoomW, minRoomH, maxRoomW, maxRoomH, minCorridorLen, maxCorridorLen, roomChance, connectDistance
         VBox b2box = new VBox();
-        TextField mw2 = new TextField("Map Width");
-        TextField mh2 = new TextField("Map Height");
-        TextField steps = new TextField("Steps");
-        TextField minrw = new TextField("Min Room Width");
-        TextField minrh = new TextField("Min Room Height");
-        TextField maxrw = new TextField("Max Room Width");
-        TextField maxrh = new TextField("Max Room Height");
-        TextField mincl = new TextField("Min Corr Length");
-        TextField maxcl = new TextField("Max Corr Length");
-        TextField rc = new TextField("Room Chance");
-        TextField cd = new TextField("Connect Distance");
+        TextField mw2 = new TextField("Map Width (def. 50)");
+        TextField mh2 = new TextField("Map Height (def. 50)");
+        TextField steps = new TextField("Steps (def. 500)");
+        TextField minrw = new TextField("Min Room Width (def. 3)");
+        TextField minrh = new TextField("Min Room Height (def. 3)");
+        TextField maxrw = new TextField("Max Room Width (def. 10)");
+        TextField maxrh = new TextField("Max Room Height (def. 10)");
+        TextField mincl = new TextField("Min Corr Length (def. 4)");
+        TextField maxcl = new TextField("Max Corr Length (def. 10)");
+        TextField rc = new TextField("Room Chance (def. 0.9)");
+        TextField cd = new TextField("Connect Distance (def. 3)");
         Button b2 = new Button("Mg2");
         b2.setOnMouseClicked((event) -> {
             mg2ClickedEvent(mw2, mh2, steps, minrw, minrh, maxrw, maxrh, mincl, maxcl, rc, cd);
@@ -250,12 +250,12 @@ public class Main extends Application {
 
     private VBox createB3Box() {
         VBox b3box = new VBox();
-        TextField mw3 = new TextField("Map Width");
-        TextField mh3 = new TextField("Map Height");
-        TextField fc = new TextField("Floor Chance");
-        TextField fr = new TextField("Min Floor Ratio");
-        TextField wai = new TextField("Iterations With Wall Add");
-        TextField nwai = new TextField("Iterations W/o Wall Add");
+        TextField mw3 = new TextField("Map Width (def. 50)");
+        TextField mh3 = new TextField("Map Height (def. 50)");
+        TextField fc = new TextField("Floor Chance (def. 0.65)");
+        TextField fr = new TextField("Min Floor Ratio (def. 0.15)");
+        TextField wai = new TextField("Iterations With Wall Add (def. 5)");
+        TextField nwai = new TextField("Iterations W/o Wall Add (def. 2)");
         Button b3 = new Button("Mg3");
         b3.setOnMouseClicked((event) -> {
             mg3ClickedEvent(mw3, mh3, fc, fr, wai, nwai);
@@ -369,13 +369,19 @@ public class Main extends Application {
         }
 
         try {
-            floorChance = Double.parseDouble(fc.getText());
+            floorChance = Math.abs(Double.parseDouble(fc.getText()));
+            if (floorChance > 1) {
+                floorChance = 0.65;
+            }
         } catch (Exception e) {
             floorChance = 0.65;
         }
         
         try {
-            floorRatio = Double.parseDouble(fr.getText());
+            floorRatio = Math.abs(Double.parseDouble(fr.getText()));
+            if (floorRatio > 0.999) {
+                floorRatio = 0.15;
+            }
         } catch (Exception e) {
             floorRatio = 0.15;
         }
@@ -389,7 +395,7 @@ public class Main extends Application {
         try {
             nwaits = Integer.parseInt(nwai.getText());
         } catch (Exception e) {
-            nwaits = 1;
+            nwaits = 2;
         }
 
         Map c3 = m3.createMap(w, h, floorChance, floorRatio, waits, nwaits, false);
