@@ -20,14 +20,14 @@ import support.generic.MapGenerator2Parameters;
  */
 public class MapGenerator2 {
     
-    //Possible parameters to add:
-    //Pre-occupied wall that can't be painted over
 
     Random r = new Random();
     int maxW;
     int maxH;
     MapGenerator2Parameters par;
     Map m;
+    Room[] rooms;
+    int ri;
     
     public Map createMap(int maxW, int maxH) {
         MapGenerator2Parameters par = new MapGenerator2Parameters(maxW, maxH, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -58,6 +58,11 @@ public class MapGenerator2 {
         int h = par.minRoomW + r.nextInt(par.maxRoomW);
         Room r0 = new Room(new Location(r.nextInt(maxW - par.maxRoomW) + 1, r.nextInt(maxH - par.maxRoomH + 1)), w, h);
         paintRoom(t, r0.getLocation(), r0.getW(), r0.getH());
+        rooms = new Room[50];
+        rooms[0] = r0;
+        ri = 1;
+        
+        
               
         m.recordHistory();
         
@@ -84,9 +89,6 @@ public class MapGenerator2 {
 
         removeDeadEnds(t);
         
-        //Add a room array with just the first room to the map object. This is used in testing.
-        Room[] rooms = new Room[1];
-        rooms[0] = r0;
         
         m.setRooms(rooms);
 
@@ -153,7 +155,19 @@ public class MapGenerator2 {
 
         if (validRoomLocation(l, d, t, w, h)) {
             t[l.getX()][l.getY()] = Terrain.CORRIDOR;
-            paintRoom(t, getRoomNw(l, d, w, h), w, h);
+            Location nw = getRoomNw(l, d, w, h);
+            paintRoom(t, nw, w, h);
+            
+            if (ri >= rooms.length) {
+                Room[] nr = new Room[rooms.length * 2];
+                for (int i = 0; i < ri; i++) {
+                    nr[i] = rooms[i];
+                }
+                rooms = nr;
+            }
+            rooms[ri] = new Room(nw, w, h);
+            ri++;
+            
             m.recordHistory();
         }
     }
@@ -188,6 +202,9 @@ public class MapGenerator2 {
         return this.checkRoomLocation(this.getRoomNw(l, d, w, h), this.getRoomSe(l, d, w, h), t);
     }
 
+    /**
+     * Get the northwest corner of the room of width and height w, h if it was painted in direction d from location l.
+     */
     private Location getRoomNw(Location l, Direction d, int w, int h) {
         if (d == Direction.DOWN) {
             return new Location(l.getX() - (w / 2), l.getY() + 1);
@@ -201,6 +218,9 @@ public class MapGenerator2 {
         return null;
     }
 
+    /**
+     * Get the southeast corner of the room of width and height w, h if it was painted in direction d from location l.
+     */
     private Location getRoomSe(Location l, Direction d, int w, int h) {
         if (d == Direction.DOWN) {
             return new Location(l.getX() + (w / 2), l.getY() + h);
@@ -214,6 +234,9 @@ public class MapGenerator2 {
         return null;
     }
 
+    /**
+     * Check if room with given nw and se corners fits, ie if that area contains only wall.
+     */
     private boolean checkRoomLocation(Location nw, Location se, Terrain[][] t) {
         for (int i = nw.getX() - 1; i < se.getX() + 2; i++) {
             for (int j = nw.getY() - 1; j < se.getY() + 2; j++) {
@@ -227,6 +250,9 @@ public class MapGenerator2 {
         return true;
     }
 
+    /**
+     * Check if location is out of bounds for the map.
+     */
     private boolean outOfBounds(Location a) {
         int x = a.getX();
         int y = a.getY();

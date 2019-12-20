@@ -62,6 +62,9 @@ public class Map {
         this.rooms = rooms;
     }
 
+    /**
+     * Record the current state of t to terrainHistory.
+     */
     public void recordHistory() {
         if (hi < maxHi) {
             copyT();
@@ -73,6 +76,9 @@ public class Map {
 
     }
 
+    /**
+     * Increase the size of the z (time) dimension of the terrainHistory array.
+     */
     private void increaseArraySize() {
         Terrain[][][] newTH = new Terrain[maxHi * 2][w][h];
         for (int i = 0; i < hi; i++) {
@@ -90,6 +96,9 @@ public class Map {
         return hi;
     }
 
+    /**
+     * Copy the current state of t to terrainHistory (can't just assign because of mutability).
+     */
     private void copyT() {
         for (int i = 0; i < t.length; i++) {
             for (int j = 0; j < t[0].length; j++) {

@@ -25,6 +25,7 @@ import support.map.Terrain;
 import java.util.concurrent.TimeUnit;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -45,6 +46,7 @@ public class Main extends Application {
     Stage stage;
     long time;
     int historyIndex;
+    StopWatch sw = new StopWatch();
 
     MapGenerator1 m1 = new MapGenerator1();
     MapGenerator2 m2 = new MapGenerator2();
@@ -100,7 +102,7 @@ public class Main extends Application {
 //        System.out.println("Time elapsed: " + time + " ms");
     }
 
-    private void historyAnimation(Map m) {
+    private void historyAnimation(Map m, long time) {
         this.framework = new BorderPane();
         framework.setMinSize(50 * pixelSize, 60 * pixelSize);
 
@@ -127,16 +129,11 @@ public class Main extends Application {
                 menu();
             }
         });
+        
+        Label timeLabel = new Label("Time elapsed: " + time + "ms");
+        framework.setTop(timeLabel);
+        
 
-//        for (int i = 0; i < m.getHi(); i++) {
-//            drawMap(drawer, new Map(m.getTerrainHistory()[i], null, 0, 0));
-//            try {
-//                TimeUnit.MILLISECONDS.sleep(500);
-//            } catch (Exception e) {
-//                
-//            }
-//            
-//        }
     }
 
     private Map createMap() {
@@ -207,8 +204,11 @@ public class Main extends Application {
             corrN = 1;
         }
 
+        sw.reset();
+        sw.start();
         Map c1 = m1.createMap(w, h, roomN, corrN);
-        this.historyAnimation(c1);
+        sw.stop();
+        this.historyAnimation(c1, sw.getTime());
     }
 
     private VBox createB1Box() {
@@ -238,7 +238,7 @@ public class Main extends Application {
         TextField maxrh = new TextField("Max Room Height (def. 10)");
         TextField mincl = new TextField("Min Corr Length (def. 4)");
         TextField maxcl = new TextField("Max Corr Length (def. 10)");
-        TextField rc = new TextField("Room Chance (def. 0.9)");
+        TextField rc = new TextField("Room Chance (def. 0.6)");
         TextField cd = new TextField("Connect Distance (def. 3)");
         Button b2 = new Button("Mg2");
         b2.setOnMouseClicked((event) -> {
@@ -334,7 +334,7 @@ public class Main extends Application {
         try {
             roomChance = Double.parseDouble(rc.getText());
         } catch (Exception e) {
-            roomChance = 0.9;
+            roomChance = 0.6;
         }
 
         try {
@@ -344,8 +344,11 @@ public class Main extends Application {
         }
 
         MapGenerator2Parameters par = new MapGenerator2Parameters(w, h, s, minRoomW, maxRoomW, minRoomH, maxRoomH, minCorrL, maxCorrL, roomChance, connectDistance);
+        sw.reset();
+        sw.start();
         Map c2 = m2.createMap(par);
-        this.historyAnimation(c2);
+        sw.stop();
+        this.historyAnimation(c2, sw.getTime());
     }
 
     private void mg3ClickedEvent(TextField mw3, TextField mh3, TextField fc, TextField fr, TextField wai, TextField nwai) {
@@ -398,7 +401,10 @@ public class Main extends Application {
             nwaits = 2;
         }
 
+        sw.reset();
+        sw.start();
         Map c3 = m3.createMap(w, h, floorChance, floorRatio, waits, nwaits, false);
-        this.historyAnimation(c3);
+        sw.stop();
+        this.historyAnimation(c3, sw.getTime());
     }
 }

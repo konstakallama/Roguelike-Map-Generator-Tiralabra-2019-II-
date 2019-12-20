@@ -82,7 +82,10 @@ public class Room {
     public String toString() {
         return "Room{" + "location=" + location + ", w=" + w + ", h=" + h + '}';
     }
-    
+    /**
+     * Returns the northeast corner of this room.
+     * @return 
+     */
     public Location getNE() {
         return new Location(this.location.getX() + w - 1, this.location.getY());
     }

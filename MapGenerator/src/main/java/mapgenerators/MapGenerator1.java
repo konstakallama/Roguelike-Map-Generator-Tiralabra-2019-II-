@@ -226,7 +226,7 @@ public class MapGenerator1 {
     }
 
     /**
-     *
+     * Paint a corridor from the middle of room from to the middle of room to. Always makes a simple corridor with just one turn, first traveling to the direction with more distance to traverse in.
      */
     private Terrain[][] paintCorridor(Terrain[][] t, Room from, Room to) {
         DirectionPair dp = getDirectionsForRooms(from, to);
@@ -236,6 +236,9 @@ public class MapGenerator1 {
         return t;
     }
     
+    /**
+     * Returns the horizontal direction you have to travel in to get to room to from room from.
+     */
     private Direction getHorizontalForRooms(Room from, Room to) {
         if (from.getMiddle().getX() < to.getMiddle().getX()) {
             return Direction.RIGHT;
@@ -246,6 +249,9 @@ public class MapGenerator1 {
         }
     }
     
+    /**
+     * Returns the vertical direction you have to travel in to get to room to from room from.
+     */
     private Direction getVerticalForRooms(Room from, Room to) {
         if (from.getMiddle().getY() < to.getMiddle().getY()) {
             return Direction.DOWN;
@@ -256,6 +262,9 @@ public class MapGenerator1 {
         }
     }
 
+    /**
+     * Returns the directions you have to travel in to get to room to from room from. The direction with more distance to traverse in will be first. If one of the directions is NONE, it will be second.
+     */
     private DirectionPair getDirectionsForRooms(Room from, Room to) {
         Direction d1 = this.getHorizontalForRooms(from, to);
         Direction d2 = this.getVerticalForRooms(from, to);
@@ -272,6 +281,9 @@ public class MapGenerator1 {
         }
     }
 
+    /**
+     * Returns the location on the edge of the room in direction d from the middle.
+     */
     private Location getCorridorStart(Room from, Direction d, Terrain[][] t) {
         Location l = from.getMiddle();
         while (t[l.getX()][l.getY()] == Terrain.FLOOR) {
@@ -280,6 +292,9 @@ public class MapGenerator1 {
         return l;
     }
 
+    /**
+     * Paint a corridor down until you can't get any closer in this direction.
+     */
     private Location paintDown(Location l, Room to, Terrain[][] t) {
         while (to.getMiddle().getY() > l.getY()) {
             if (t[l.getX()][l.getY()] == Terrain.WALL) {
@@ -293,6 +308,9 @@ public class MapGenerator1 {
         return l;
     }
 
+    /**
+     * Paint a corridor up until you can't get any closer in this direction.
+     */
     private Location paintUp(Location l, Room to, Terrain[][] t) {
         while (to.getMiddle().getY() < l.getY()) {
             if (t[l.getX()][l.getY()] == Terrain.WALL) {
@@ -306,6 +324,9 @@ public class MapGenerator1 {
         return l;
     }
 
+    /**
+     * Paint a corridor right until you can't get any closer in this direction.
+     */
     private Location paintRight(Location l, Room to, Terrain[][] t) {
         while (to.getMiddle().getX() > l.getX()) {
             if (t[l.getX()][l.getY()] == Terrain.WALL) {
@@ -319,6 +340,9 @@ public class MapGenerator1 {
         return l;
     }
 
+    /**
+     * Paint a corridor left until you can't get any closer in this direction.
+     */
     private Location paintLeft(Location l, Room to, Terrain[][] t) {
         while (to.getMiddle().getX() < l.getX()) {
             if (t[l.getX()][l.getY()] == Terrain.WALL) {
@@ -332,6 +356,9 @@ public class MapGenerator1 {
         return l;
     }
 
+    /**
+     * Call the appropriate paint[Direction] method for d.
+     */
     private Location paintToDirection(Direction d, Location l, Room to, Terrain[][] t) {
         if (to.isNextTo(l) || d == Direction.NONE) {
             if (t[l.getX()][l.getY()] == Terrain.WALL) {

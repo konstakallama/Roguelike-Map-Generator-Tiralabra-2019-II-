@@ -35,8 +35,6 @@ public class MapGenerator3 {
         m = new Map(w, h);
         while (true) {
             t = this.generateTerrain(w, h, floorChance, wallAddIts, noWallAddIts, manhattan);
-//            this.printMap(t);
-//            System.out.println("");
             if (overXPercentFloor(t, floorRatio)) {
                 break;
             } else {
@@ -55,8 +53,6 @@ public class MapGenerator3 {
         t = randomFill(floorChance, t);
         m.setT(t);
         m.recordHistory();
-//        this.printMap(t);
-//        System.out.println("");
 
         for (int i = 0; i < wallAddIts; i++) {
             if (manhattan) {
@@ -66,8 +62,6 @@ public class MapGenerator3 {
             }
             
             m.recordHistory();
-//            this.printMap(t);
-//            System.out.println("");
         }
 
         for (int i = 0; i < noWallAddIts; i++) {
@@ -77,8 +71,6 @@ public class MapGenerator3 {
                 t = iteration(t, false);
             }
             m.recordHistory();
-//            this.printMap(t);
-//            System.out.println("");
         }
         
         t = killRoadblocks(t);
@@ -103,6 +95,9 @@ public class MapGenerator3 {
         return t;
     }
 
+    /**
+     * Randomly fill t according to floorChance.
+     */
     private Terrain[][] randomFill(double floorChance, Terrain[][] t) {
         for (int i = 1; i < t.length - 1; i++) {
             for (int j = 1; j < t[0].length - 1; j++) {
@@ -114,6 +109,9 @@ public class MapGenerator3 {
         return t;
     }
 
+    /**
+     * Run 1 time step of the automaton, changing the terrain of each tile based on it's surroundings.
+     */
     private Terrain[][] iteration(Terrain[][] t, boolean wallAddition) {
         for (int i = 1; i < t.length - 1; i++) {
             for (int j = 1; j < t[0].length - 1; j++) {
@@ -131,6 +129,9 @@ public class MapGenerator3 {
         return t;
     }
     
+    /**
+     * Run 1 time step of the automaton, changing the terrain of each tile based on it's surroundings, using manhattan distance (ie only the 4 adjacent tiles for radius = 1 etc).
+     */
     private Terrain[][] manhattanIteration(Terrain[][] t, boolean wallAddition) {
         for (int i = 1; i < t.length - 1; i++) {
             for (int j = 1; j < t[0].length - 1; j++) {
@@ -150,6 +151,9 @@ public class MapGenerator3 {
         return t;
     }
 
+    /**
+     * Count the amount of wall within a manhattan distance of radius from x, y.
+     */
     private int manhattanWallCount(int x, int y, int radius, Terrain[][] t) {
         int count = 0;
         for (int i = x - radius; i <= x + radius; i++) {
@@ -166,6 +170,9 @@ public class MapGenerator3 {
         return count;
     }
 
+    /**
+     * Count the amount of wall within xScope, yScope distance from x, y.
+     */
     private int wallCount(int x, int y, int xScope, int yScope, Terrain[][] t) {
         int count = 0;
         for (int i = x - xScope; i <= x + xScope; i++) {
@@ -194,6 +201,9 @@ public class MapGenerator3 {
         return false;
     }
 
+    /**
+     * Pick a random floor tile on the map and fill out tiles unreachable from that tile with wall.
+     */
     private Terrain[][] fillUnreachable(Terrain[][] t) {
         Location l = this.getNonWallLocation(t);
         this.r0loc = l;
@@ -208,6 +218,9 @@ public class MapGenerator3 {
         return t;
     }
 
+    /**
+     * Get random nonwall location.
+     */
     private Location getNonWallLocation(Terrain[][] t) {
         int counter = 0;
         Location l = new Location(r.nextInt(t.length), r.nextInt(t[0].length));
@@ -218,6 +231,9 @@ public class MapGenerator3 {
         return l;
     }
 
+    /**
+     * Find out which tiles are reachable from l using bfs.
+     */
     private boolean[][] bfs(Terrain[][] t, Location l) {
         boolean[][] reachable = new boolean[t.length][t[0].length];
         LocationQueue q = new LocationQueue();
@@ -239,6 +255,9 @@ public class MapGenerator3 {
         return reachable;
     }
 
+    /**
+     * True if map contains over x percent floor.
+     */
     private boolean overXPercentFloor(Terrain[][] t, double x) {
         double floorCount = 0;
         for (int i = 0; i < t.length; i++) {
@@ -248,11 +267,12 @@ public class MapGenerator3 {
                 }
             }
         }
-//        System.out.println("fc: " + floorCount);
-//        System.out.println("rt: " + floorCount / (t.length * t[0].length));
         return floorCount / (t.length * t[0].length) > x;
     }
 
+    /**
+     * Prints the map, was used in debugging.
+     */
     private void printMap(Terrain[][] t) {
         for (int i = 0; i < t.length; i++) {
             for (int j = 0; j < t[0].length; j++) {
@@ -268,6 +288,9 @@ public class MapGenerator3 {
         }
     }
 
+    /**
+     * Tear down walls that are surronded by floor but block movement because they have two walls next to them diagonally, because I found them annoying.
+     */
     private Terrain[][] killRoadblocks(Terrain[][] t) {
         for (int i = 1; i < t.length - 1; i++) {
             for (int j = 1; j < t[0].length - 1; j++) {
@@ -284,6 +307,9 @@ public class MapGenerator3 {
         return t;
     }
 
+    /**
+     * True if tile has two walls in opposite diagonal sides, blocking movement if tile in question is also wall.
+     */
     private boolean twoDiagonalWalls(int i, int j, Terrain[][] t) {
         try {
             if (t[i - 1][j - 1] == Terrain.WALL && t[i + 1][j + 1] == Terrain.WALL) {
