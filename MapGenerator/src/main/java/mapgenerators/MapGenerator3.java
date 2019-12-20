@@ -5,7 +5,6 @@
  */
 package mapgenerators;
 
-import java.util.ArrayDeque;
 import java.util.Random;
 import support.generic.LocationQueue;
 import support.map.Location;

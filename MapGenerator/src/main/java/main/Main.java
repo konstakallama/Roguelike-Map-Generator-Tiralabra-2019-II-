@@ -5,8 +5,6 @@
  */
 package main;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.scene.Scene;
@@ -22,7 +20,6 @@ import org.apache.commons.lang.time.StopWatch;
 import support.generic.MapGenerator2Parameters;
 import support.map.Map;
 import support.map.Terrain;
-import java.util.concurrent.TimeUnit;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
